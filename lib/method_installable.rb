@@ -42,6 +42,11 @@ module MethodInstallable
   # methods         ... インストールする対象メソッド (default: 全インスタンスメソッド)
   # callback        ... 処理後に実行するコールバックメソッド (Proc も可)
   def install_method_from(klass, converter, *converter_args, method: , callback: nil)
+    if self.instance_methods.include?(method)
+      STDERR.puts "WARNING: #{self}##{method} is already exists. #{self} was not intalled #{klass}##{method}."
+      return
+    end
+
     define_method method do |*args|
       result = send(converter, *converter_args).send(method, *args)
 
@@ -53,6 +58,6 @@ module MethodInstallable
         result
       end
     end
-    # puts "#{self}:#{method} installed from #{klass}."
+    # puts "#{self}##{method} installed from #{klass}."
   end
 end
