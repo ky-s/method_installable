@@ -40,46 +40,46 @@ Then, you can call `Array#[]` method from Range object directly.
 ```
 
 ### install_methods_from
-いくつかの、あるいはすべてのメソッドを一度にインストールします。
+Define `methods` from `klass` class.
 
 ```ruby
 install_methods_from(klass, converter, *converter_args, methods: nil, follow: methods.nil?, callback: nil)
 ```
+The methods implementation:
+  Firstly, call `converter(*converter_args)` to convert to `klass`.
+  And then, call 'installed' method from `klass`.
+
+If self class has already the method, that is not defined.
+
+follow:
+  follow when method is added to klass.
+  But not follow when method is removed or undefined.
+
+callback:
+  Proc, Method Object or method its after callback.
+
 
 [args]
-- klass           ... インストール元クラスオブジェクト
-- converter       ... 現在のオブジェクトを klass オブジェクトに変換するメソッド
-- converter_args  ... converter の引数オプション
-- methods         ... インストールする対象メソッド (default: 全インスタンスメソッド)
-- follow          ... 今後追加したメソッドに追随するか。
-                      default は、 methods が明示的に渡されたら false 、なければ true です。
-- callback        ... 処理後に実行するコールバックメソッド (Proc も可)
-
-klass に指定した class の持つ instance_methods をレシーバクラスオブジェクトに定義します。
-
-converter に指定したメソッドで自身を klass に変換してから対象のメソッドをコールするようになります。
-
-自身が持っているメソッドと名称が重複した場合は自身のメソッドが優先されます。
-
-follow を有効にすると、インストール後に追加された klass のメソッドも method_added イベントによって追随しますが、
-
-削除、未定義にされたメソッドは追随しません。
-
-削除されたメソッドが install_methods_from によって追加されたメソッドかどうかを判定できないためです。
+- klass                 ...  source class for install
+- converter             ...  method for self convert to klass
+- *converter_args       ...  converter method arguments
+- methods: nil          ...  methods for install (default: all instance methods)
+- follow: methods.nil?  ...  follow when method is added to klass
+- callback: nil         ...  after callback method or procedure
 
 ### install_method_from
-メソッドをひとつだけインストールします。
+
+install only one method
 
 ```ruby
 install_method_from(klass, converter, *converter_args, method: , callback: nil)
 ```
-
 [args]
-- klass           ... インストール元クラスオブジェクト
-- converter       ... 現在のオブジェクトを klass オブジェクトに変換するメソッド
-- converter_args  ... converter の引数オプション
-- method          ... インストールする対象メソッド
-- callback        ... 処理後に実行するコールバックメソッド (Proc も可)
+- klass                 ...  source class for install
+- converter             ...  method for self convert to klass
+- *converter_args       ...  converter method arguments
+- method:               ...  method for install
+- callback: nil         ...  after callback method or procedure
 
 ## Development
 

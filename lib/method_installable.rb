@@ -1,20 +1,28 @@
 require "method_installable/version"
 
 module MethodInstallable
-  # klass に指定した class の持つ instance_methods をすべて定義します。
-  # converter に指定したメソッドで自身を klass に変換してから対象のメソッドをコールするようになります。
-  # 自身が持っているメソッドと名称が重複した場合は自身のメソッドが優先されます。
-  # インストール後に追加されたメソッドも method_added イベントによって追随しますが、
-  # 削除、未定義にされたメソッドは追随しません。
-  # 削除されたメソッドが install_methods_from によって追加されたメソッドかどうかを判定できないためです。
+  # Define `methods` from `klass` class.
+  #
+  # The methods implementation:
+  #   Firstly, call `converter(*converter_args)` to convert to `klass`.
+  #   And then, call 'installed' method from `klass`.
+  #
+  # If self class has already the method, that is not defined.
+  #
+  # follow:
+  #   follow when method is added to klass.
+  #   But not follow when method is removed or undefined.
+  #
+  # callback:
+  #   Proc, Method Object or method its after callback.
   #
   def install_methods_from(
-    klass,                # インストール元クラスオブジェクト
-    converter,            # 現在のオブジェクトを klass オブジェクトに変換するメソッド
-    *converter_args,      # converter の引数オプション
-    methods: nil,         # インストールする対象メソッド (default: 全インスタンスメソッド)
-    follow: methods.nil?, # 今後追加したメソッドに追随するか。
-    callback: nil         # 処理後に実行するコールバックメソッド (Proc も可)
+    klass,                # source class for install
+    converter,            # method for self convert to klass
+    *converter_args,      # converter method arguments
+    methods: nil,         # methods for install (default: all instance methods)
+    follow: methods.nil?, # follow when method is added to klass
+    callback: nil         # after callback method or procedure
   )
     methods_for_intall =
       Array(methods || klass.instance_methods) - self.instance_methods
@@ -54,11 +62,11 @@ module MethodInstallable
 
   # install only one method
   def install_method_from(
-    klass,           # インストール元クラスオブジェクト
-    converter,       # 現在のオブジェクトを klass オブジェクトに変換するメソッド
-    *converter_args, # converter の引数オプション
-    method: ,        # インストールする対象メソッド (default: 全インスタンスメソッド)
-    callback: nil    # 処理後に実行するコールバックメソッド (Proc も可)
+    klass,           # source class for install
+    converter,       # method for self convert to klass
+    *converter_args, # converter method arguments
+    method: ,        # method for install
+    callback: nil    # after callback method or procedure
   )
     if self.instance_methods.include?(method)
       STDERR.puts "WARNING: #{self}##{method} is already exists. #{self} was not intalled #{klass}##{method}."
@@ -68,7 +76,7 @@ module MethodInstallable
     define_method method do |*args|
       result = send(converter, *converter_args).send(method, *args)
 
-      if callback.is_a?(Proc)
+      if callback.is_a?(Proc) || callback.is_a?(Method)
         callback.call result
       elsif callback.is_a?(Symbol) || callback.is_a?(String)
         result.send(callback)
@@ -76,6 +84,6 @@ module MethodInstallable
         result
       end
     end
-    # puts "#{self}##{method} installed from #{klass}."
+    # STDOUT.puts "#{self}##{method} installed from #{klass}."
   end
 end
