@@ -82,4 +82,37 @@ class MethodInstallableTest < Minitest::Test
     refute Ditto.instance_methods.include?(:flamethrower)
     refute Ditto.instance_methods.include?(:fire_blast)
   end
+
+  def test_the_case_of_call_back_is_a_symbol
+    the_c = Charizard.new('my Charizard')
+    result_string = the_c.flamethrower
+
+    Dragonite.extend(::MethodInstallable)
+    Dragonite.install_method_from ::Charizard, :charizard_converter, method: :flamethrower, callback: :length
+    the_d = Dragonite.new('my Dragonite')
+    assert_equal result_string.length, the_d.flamethrower
+  end
+
+  def test_the_case_of_call_back_is_not_callable
+    the_t = Tyrogue.new('my Tyrogue')
+    Dragonite.extend(::MethodInstallable)
+    Dragonite.install_method_from ::Tyrogue, :tyrogue_converter, method: :rock_smash, callback: 1
+    the_d = Dragonite.new('my Dragonite')
+    assert_equal the_t.rock_smash, the_d.rock_smash
+  end
+
+  class MockIO
+    attr_accessor :message
+    def puts(message)
+      self.message = message
+    end
+  end
+
+  def test_the_case_method_is_already_exists
+    mockIO = MockIO.new
+    MethodInstallable::Logger.io = mockIO
+    Dragonite.extend(::MethodInstallable)
+    Dragonite.install_method_from ::Charizard, :fly, method: :fly
+    assert_equal "WARNING: Dragonite#fly is already exists. Dragonite was not intalled Charizard#fly.", mockIO.message
+  end
 end

@@ -57,3 +57,17 @@ class Charizard < Pokemon # リザードン
     fight('そらをとぶ')
   end
 end
+
+class Dragonite < Pokemon
+  def charizard_converter
+    Charizard.new('my Charizard')
+  end
+
+  def tyrogue_converter
+    Tyrogue.new('my Tyrogue')
+  end
+
+  def fly
+    fight('そらをとぶ')
+  end
+end
