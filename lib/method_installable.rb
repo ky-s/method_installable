@@ -1,4 +1,5 @@
 require "method_installable/version"
+require "method_installable/logger"
 
 module MethodInstallable
   # Define `methods` from `klass` class.
@@ -69,7 +70,8 @@ module MethodInstallable
     callback: nil    # after callback method or procedure
   )
     if self.instance_methods.include?(method)
-      STDERR.puts "WARNING: #{self}##{method} is already exists. #{self} was not intalled #{klass}##{method}."
+      logger = MethodInstallable::Logger.new
+      logger.puts "WARNING: #{self}##{method} is already exists. #{self} was not intalled #{klass}##{method}."
       return
     end
 
